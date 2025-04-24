@@ -1,11 +1,15 @@
-from flask import Flask, render_template, request, jsonify
 from ai_analyzer import BusinessAnalyzer
+from datetime import datetime
 import sqlite3
 import pandas as pd
-from datetime import datetime
+from flask import Flask, render_template, request, jsonify
+from twilio.rest import Client
+import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 analyzer = BusinessAnalyzer()
+load_dotenv()
 
 @app.route('/')
 def dashboard():
@@ -32,6 +36,20 @@ def update_streak():
                  (user_id, today, streak))
     
     return jsonify({'streak': streak})
+
+@app.route('/full-analysis', methods=['POST'])
+def full_analysis():
+
+    analysis['competitors'] = analyzer.get_competitors(
+        business_data['location'], 
+        business_data['product'])
+    
+    analysis['social_posts'] = analyzer.generate_social_post(
+        business_data, analysis)
+    
+    analysis['profit_plot'] = analyzer.generate_profit_plot(sales_df)
+    
+    return jsonify(analysis)
     
 @app.route('/analyze', methods=['POST'])
 def analyze_business():
@@ -71,6 +89,7 @@ def analyze_business():
     
     return jsonify({
         'business': business_data,
+        
         'analysis': analysis
     })
 
