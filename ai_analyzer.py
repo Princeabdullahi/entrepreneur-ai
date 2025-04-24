@@ -59,3 +59,31 @@ class BusinessAnalyzer:
             "recommendations": recs,
             "social_platforms": ["Instagram", "Facebook Marketplace"] if "local" in business_data['location'] else ["TikTok Ads", "Google Ads"]
         }
+
+# Add to ai_analyzer.py
+def generate_social_post(self, business_data, analysis):
+    platforms = {
+        'Instagram': f"🔥 New {business_data['product']} alert! ",
+        'TikTok': f"Did you know about {business_data['product']}? ",
+        'LinkedIn': f"Elevating {business_data['product']} solutions for "
+    }
+    
+    posts = {}
+    for platform in analysis['social_platforms']:
+        base = platforms.get(platform, "")
+        posts[platform] = {
+            'text': base + self._generate_hashtags(business_data['product']),
+            'best_time': self._optimal_time(platform)
+        }
+    return posts
+
+def _generate_hashtags(self, product):
+    return " ".join([f"#{word}" for word in product.split()[:3]])
+
+def _optimal_time(self, platform):
+    # Basic time suggestions
+    return {
+        'Instagram': "9AM or 7PM",
+        'TikTok': "11AM-3PM",
+        'LinkedIn': "8-10AM Tue/Wed"
+    }.get(platform, "Afternoon")
