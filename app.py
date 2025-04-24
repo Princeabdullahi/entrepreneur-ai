@@ -11,6 +11,28 @@ analyzer = BusinessAnalyzer()
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/streak', methods=['POST'])
+def update_streak():
+    user_id = request.form['user_id']
+    today = datetime.now().date()
+    
+    with sqlite3.connect('business_data.db') as conn:
+        c = conn.cursor()
+        c.execute('SELECT last_active, streak_days FROM streaks WHERE user_id=?', (user_id,))
+        row = c.fetchone()
+        
+        if row:
+            last_active, streak = row
+            last_active = datetime.strptime(last_active, "%Y-%m-%d").date()
+            streak = streak + 1 if (today - last_active).days == 1 else 1
+        else:
+            streak = 1
+            
+        c.execute('''REPLACE INTO streaks VALUES (?,?,?)''',
+                 (user_id, today, streak))
+    
+    return jsonify({'streak': streak})
+    
 @app.route('/analyze', methods=['POST'])
 def analyze_business():
     # Get form data
