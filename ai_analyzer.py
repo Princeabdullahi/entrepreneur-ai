@@ -1,5 +1,38 @@
 from transformers import pipeline
 import pandas as pd
+# Add to ai_analyzer.py
+from googlesearch import search
+import requests
+from bs4 import BeautifulSoup
+
+def get_competitors(location, product):
+    query = f"{product} near {location}"
+    competitors = []
+    
+    for url in search(query, num=3, stop=3, pause=2):  # Free scraping
+        try:
+            page = requests.get(url, timeout=5)
+            soup = BeautifulSoup(page.text, 'html.parser')
+            title = soup.title.string if soup.title else url
+            competitors.append({
+                'name': title,
+                'url': url,
+                'price_range': self.extract_prices(soup)  # Implement your logic
+            })
+        except:
+            continue
+            
+    return competitors
+
+# Add this to BusinessAnalyzer class
+def extract_prices(self, soup):
+    # Basic price extraction logic
+    prices = []
+    for tag in soup.find_all(['span', 'div'], class_=['price', 'amount']):
+        text = tag.get_text().strip()
+        if '$' in text or '€' in text or '¥' in text:
+            prices.append(text)
+    return prices[:3] if prices else "Not detected"
 
 class BusinessAnalyzer:
     def __init__(self):
