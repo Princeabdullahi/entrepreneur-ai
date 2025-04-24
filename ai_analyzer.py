@@ -4,6 +4,15 @@ import pandas as pd
 from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
+# In ai_analyzer.py
+import plotly.express as px
+import pandas as pd
+
+def generate_profit_plot(self, sales_df):
+    fig = px.line(sales_df, x='date', y='profit', 
+                 title='Profit Trend Analysis',
+                 template='plotly_dark')
+    return fig.to_html(full_html=False)
 
 def get_competitors(location, product):
     query = f"{product} near {location}"
